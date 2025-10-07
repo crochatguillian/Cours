@@ -1,1 +1,728 @@
-
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="utf-8" />
++  <meta name="viewport" content="width=device-width, initial-scale=1" />
++  <title>Product Catalog</title>
++  <style>
++    :root {
++      --bg: #0b1220;
++      --panel: #121a2b;
++      --panel-2: #0e1627;
++      --text: #e8eefc;
++      --muted: #a9b4d0;
++      --brand: #6ea8fe;
++      --accent: #8fd5ff;
++      --danger: #ff6b6b;
++      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
++      --radius: 14px;
++      --radius-sm: 10px;
++    }
++
++    * { box-sizing: border-box; }
++
++    html, body { height: 100%; }
++
++    body {
++      margin: 0;
++      background: radial-gradient(1200px 600px at 10% 0%, #16213a 0%, #0b1220 55%),
++                  radial-gradient(1200px 600px at 90% 0%, #131f36 0%, #0b1220 55%),
++                  var(--bg);
++      color: var(--text);
++      font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
++      -webkit-font-smoothing: antialiased;
++      -moz-osx-font-smoothing: grayscale;
++    }
++
++    .app-shell {
++      display: grid;
++      grid-template-rows: auto 1fr;
++      min-height: 100dvh;
++    }
++
++    /* Header */
++    header.app-header {
++      position: sticky;
++      top: 0;
++      z-index: 50;
++      backdrop-filter: saturate(140%) blur(8px);
++      background: linear-gradient(180deg, rgba(11,18,32,0.9) 0%, rgba(11,18,32,0.55) 100%);
++      border-bottom: 1px solid rgba(255,255,255,0.06);
++    }
++
++    .header-inner {
++      max-width: 1200px;
++      margin: 0 auto;
++      padding: 14px 20px;
++      display: flex;
++      align-items: center;
++      gap: 12px;
++    }
++
++    .brand {
++      display: flex;
++      align-items: center;
++      gap: 10px;
++      font-weight: 700;
++      letter-spacing: 0.3px;
++    }
++
++    .brand .logo {
++      width: 28px;
++      height: 28px;
++      display: grid;
++      place-items: center;
++      border-radius: 8px;
++      background: linear-gradient(135deg, var(--brand), var(--accent));
++      color: #0b1220;
++      font-weight: 900;
++      box-shadow: 0 4px 16px rgba(110, 168, 254, 0.35);
++    }
++
++    .header-spacer { flex: 1; }
++
++    .header-actions { position: relative; }
++
++    .kebab {
++      position: relative;
++      width: 36px;
++      height: 36px;
++      border: 1px solid rgba(255,255,255,0.08);
++      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
++      border-radius: 10px;
++      display: inline-grid;
++      grid-template-rows: repeat(3, 1fr);
++      padding: 6px 0;
++      cursor: pointer;
++      transition: transform 0.08s ease, border-color 0.2s ease, background 0.2s ease;
++    }
++
++    .kebab:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); }
++
++    .kebab span {
++      width: 4px; height: 4px; border-radius: 50%;
++      background: var(--muted);
++      margin: 0 auto;
++    }
++
++    .dropdown {
++      position: absolute;
++      top: 44px; right: 0;
++      min-width: 180px;
++      background: var(--panel);
++      border: 1px solid rgba(255,255,255,0.08);
++      box-shadow: var(--shadow);
++      border-radius: 12px;
++      padding: 6px;
++      display: none;
++      z-index: 60;
++    }
++
++    .dropdown.open { display: block; }
++
++    .dropdown button {
++      width: 100%;
++      background: transparent;
++      color: var(--text);
++      border: 0;
++      text-align: left;
++      padding: 10px 10px;
++      border-radius: 8px;
++      cursor: pointer;
++      display: flex;
++      align-items: center;
++      gap: 10px;
++    }
++
++    .dropdown button:hover { background: rgba(255,255,255,0.06); }
++
++    .dropdown .danger { color: var(--danger); }
++
++    /* Main */
++    main {
++      max-width: 1200px;
++      margin: 24px auto 60px;
++      padding: 0 20px;
++      width: 100%;
++    }
++
++    .grid {
++      display: grid;
++      grid-template-columns: repeat(12, 1fr);
++      gap: 16px;
++    }
++
++    @media (max-width: 1200px) {
++      .grid { grid-template-columns: repeat(9, 1fr); }
++    }
++
++    @media (max-width: 900px) {
++      .grid { grid-template-columns: repeat(6, 1fr); }
++    }
++
++    @media (max-width: 640px) {
++      .grid { grid-template-columns: repeat(4, 1fr); }
++    }
++
++    .product-card {
++      grid-column: span 3;
++      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
++      border: 1px solid rgba(255,255,255,0.08);
++      border-radius: var(--radius);
++      overflow: hidden;
++      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
++      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
++      position: relative;
++    }
++
++    @media (max-width: 900px) { .product-card { grid-column: span 6; } }
++    @media (max-width: 640px) { .product-card { grid-column: span 4; } }
++
++    .product-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.14); box-shadow: 0 10px 28px rgba(0,0,0,0.35); }
++
++    .image-wrap {
++      position: relative;
++      aspect-ratio: 16/10;
++      background: #0a1020;
++      overflow: hidden;
++    }
++    .image-wrap img {
++      width: 100%; height: 100%; object-fit: cover; display: block;
++      filter: saturate(1.1);
++      transform: scale(1.02);
++      transition: transform 0.5s ease;
++    }
++    .product-card:hover .image-wrap img { transform: scale(1.05); }
++
++    .kebab-btn {
++      position: absolute;
++      top: 10px; right: 10px;
++      width: 34px; height: 34px;
++      border-radius: 10px;
++      background: rgba(12,18,32,0.6);
++      border: 1px solid rgba(255,255,255,0.10);
++      display: grid; grid-template-rows: repeat(3, 1fr);
++      padding: 5px 0;
++      cursor: pointer;
++      opacity: 0; pointer-events: none;
++      transition: opacity 0.15s ease, transform 0.08s ease;
++    }
++    .product-card:hover .kebab-btn { opacity: 1; pointer-events: auto; }
++    .kebab-btn:hover { transform: translateY(-1px); }
++    .kebab-btn span { width: 3px; height: 3px; border-radius: 50%; background: #d7e2ff; margin: 0 auto; }
++
++    .card-menu {
++      position: absolute;
++      top: 46px; right: 10px;
++      min-width: 150px;
++      background: var(--panel);
++      border: 1px solid rgba(255,255,255,0.10);
++      border-radius: 10px;
++      box-shadow: var(--shadow);
++      padding: 6px;
++      display: none;
++      z-index: 40;
++    }
++
++    .card-menu.open { display: block; }
++
++    .card-menu button {
++      width: 100%;
++      background: transparent; color: var(--text);
++      border: 0; text-align: left;
++      padding: 9px 10px; border-radius: 8px; cursor: pointer;
++    }
++    .card-menu button:hover { background: rgba(255,255,255,0.06); }
++    .card-menu .danger { color: var(--danger); }
++
++    .card-body { padding: 12px 12px 14px; }
++    .name-row { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
++    .name { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0.2px; }
++    .price { font-weight: 700; color: var(--accent); }
++    .desc { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
++
++    /* Modal */
++    .modal-backdrop { position: fixed; inset: 0; backdrop-filter: blur(8px) saturate(120%); background: rgba(6,9,18,0.55); display: none; z-index: 90; }
++    .modal-backdrop.open { display: grid; place-items: center; }
++    .modal {
++      width: min(700px, calc(100vw - 28px));
++      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
++      border: 1px solid rgba(255,255,255,0.08);
++      border-radius: 16px;
++      box-shadow: var(--shadow);
++      overflow: hidden;
++      color: var(--text);
++    }
++    .modal header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
++    .modal header h2 { margin: 0; font-size: 18px; }
++    .modal header .close { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; }
++    .modal .content { padding: 14px 16px 16px; }
++
++    form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
++    @media (max-width: 640px) { form .row { grid-template-columns: 1fr; } }
++
++    .field { display: grid; gap: 6px; }
++    .field label { color: var(--muted); font-size: 13px; }
++    .field input[type="text"],
++    .field input[type="number"],
++    .field textarea {
++      width: 100%;
++      padding: 10px 12px;
++      border-radius: 10px;
++      border: 1px solid rgba(255,255,255,0.10);
++      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
++      color: var(--text);
++      outline: none;
++    }
++    .field textarea { resize: vertical; min-height: 86px; }
++
++    .error { color: var(--danger); font-size: 12px; min-height: 14px; }
++
++    .image-inputs { display: grid; gap: 10px; }
++    .file-input { position: relative; }
++    .file-input input[type="file"] { display: none; }
++    .file-input label { display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.12); color: var(--text); cursor: pointer; background: rgba(255,255,255,0.03); }
++
++    .preview { display: grid; place-items: center; background: #0a1020; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; }
++    .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
++
++    .form-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 16px 16px; }
++    .btn { border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; }
++    .btn.primary { background: linear-gradient(135deg, var(--brand), var(--accent)); color: #0b1220; border-color: transparent; font-weight: 700; }
++    .btn.danger { border-color: rgba(255,107,107,0.4); color: var(--danger); }
++
++    /* Toast */
++    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(12,18,32,0.9); color: var(--text); border: 1px solid rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 12px; box-shadow: var(--shadow); display: none; z-index: 100; }
++    .toast.show { display: block; animation: fadein 0.2s ease, fadeout 0.2s ease 2.3s forwards; }
++    @keyframes fadein { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%,0); } }
++    @keyframes fadeout { to { opacity: 0; transform: translate(-50%, 8px); } }
++  </style>
++</head>
++<body>
++  <div class="app-shell">
++    <header class="app-header">
++      <div class="header-inner">
++        <div class="brand" aria-label="App">
++          <div class="logo">P</div>
++          <div>Product Catalog</div>
++        </div>
++        <div class="header-spacer"></div>
++        <div class="header-actions">
++          <button class="kebab" id="globalKebab" aria-haspopup="menu" aria-expanded="false" title="Menu">
++            <span></span><span></span><span></span>
++          </button>
++          <div class="dropdown" id="globalMenu" role="menu" aria-label="Actions">
++            <button id="addProductBtn">➕ Add product</button>
++            <button id="seedBtn">🔁 Reset demo data</button>
++          </div>
++        </div>
++      </div>
++    </header>
++
++    <main>
++      <div id="productGrid" class="grid" aria-live="polite"></div>
++    </main>
++  </div>
++
++  <!-- Product Modal -->
++  <div class="modal-backdrop" id="productModal" aria-hidden="true">
++    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
++      <header>
++        <h2 id="modalTitle">Add product</h2>
++        <button class="close" id="modalClose" aria-label="Close">✕</button>
++      </header>
++      <div class="content">
++        <form id="productForm" novalidate>
++          <input type="hidden" id="productId" />
++          <div class="row">
++            <div class="field">
++              <label for="name">Name</label>
++              <input id="name" name="name" type="text" placeholder="e.g. Wireless Headphones" required />
++              <div class="error" id="nameError"></div>
++            </div>
++            <div class="field">
++              <label for="price">Price (USD)</label>
++              <input id="price" name="price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 129.99" required />
++              <div class="error" id="priceError"></div>
++            </div>
++          </div>
++          <div class="field">
++            <label for="description">Description</label>
++            <textarea id="description" name="description" placeholder="Short, compelling description"></textarea>
++            <div class="error" id="descriptionError"></div>
++          </div>
++          <div class="row">
++            <div class="field image-inputs">
++              <label>Image</label>
++              <input id="imageUrl" name="imageUrl" type="text" placeholder="Paste image URL (optional)" />
++              <div class="file-input">
++                <input id="imageFile" name="imageFile" type="file" accept="image/*" />
++                <label for="imageFile">📁 Upload image file</label>
++              </div>
++              <div class="error" id="imageError"></div>
++            </div>
++            <div class="field">
++              <label>Preview</label>
++              <div class="preview"><img id="imagePreview" alt="Preview" /></div>
++            </div>
++          </div>
++          <div class="form-actions">
++            <button type="button" class="btn" id="cancelBtn">Cancel</button>
++            <button type="submit" class="btn primary" id="saveBtn">Save</button>
++          </div>
++        </form>
++      </div>
++    </div>
++  </div>
++
++  <div id="toast" class="toast" role="status" aria-live="polite"></div>
++
++  <script>
++    (function () {
++      const STORAGE_KEY = 'productCatalog';
++      const gridEl = document.getElementById('productGrid');
++      const globalKebab = document.getElementById('globalKebab');
++      const globalMenu = document.getElementById('globalMenu');
++      const addProductBtn = document.getElementById('addProductBtn');
++      const seedBtn = document.getElementById('seedBtn');
++
++      const modal = document.getElementById('productModal');
++      const modalTitle = document.getElementById('modalTitle');
++      const modalClose = document.getElementById('modalClose');
++      const form = document.getElementById('productForm');
++      const productIdInput = document.getElementById('productId');
++      const nameInput = document.getElementById('name');
++      const priceInput = document.getElementById('price');
++      const descriptionInput = document.getElementById('description');
++      const imageUrlInput = document.getElementById('imageUrl');
++      const imageFileInput = document.getElementById('imageFile');
++      const imagePreview = document.getElementById('imagePreview');
++      const nameError = document.getElementById('nameError');
++      const priceError = document.getElementById('priceError');
++      const imageError = document.getElementById('imageError');
++      const cancelBtn = document.getElementById('cancelBtn');
++      const toast = document.getElementById('toast');
++
++      let products = [];
++
++      function uuid() {
++        if (crypto && crypto.randomUUID) return crypto.randomUUID();
++        return 'p-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
++      }
++
++      function currency(amount) {
++        const locale = navigator.language || 'en-US';
++        try {
++          return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' }).format(amount);
++        } catch {
++          return '$' + (Math.round(amount * 100) / 100).toFixed(2);
++        }
++      }
++
++      function showToast(message) {
++        toast.textContent = message;
++        toast.classList.add('show');
++        setTimeout(() => toast.classList.remove('show'), 2500);
++      }
++
++      function loadProducts() {
++        const raw = localStorage.getItem(STORAGE_KEY);
++        if (!raw) return [];
++        try { return JSON.parse(raw) ?? []; } catch { return []; }
++      }
++
++      function saveProducts(list) {
++        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
++      }
++
++      function seedProducts() {
++        const demo = [
++          {
++            id: uuid(),
++            name: 'Aeris Wireless Headphones',
++            price: 129.99,
++            description: 'Active noise cancelling, 30h battery, ultra-soft ear cushions.',
++            imageSrc: 'https://picsum.photos/seed/headphones/800/500'
++          },
++          {
++            id: uuid(),
++            name: 'Nordic Ergonomic Chair',
++            price: 259.0,
++            description: 'Breathable mesh, lumbar support, adjustable armrests for long sessions.',
++            imageSrc: 'https://picsum.photos/seed/chair/800/500'
++          },
++          {
++            id: uuid(),
++            name: 'Trailblazer Backpack 28L',
++            price: 89.5,
++            description: 'Weather-resistant fabric, laptop sleeve, quick-access pockets.',
++            imageSrc: 'https://picsum.photos/seed/backpack/800/500'
++          },
++          {
++            id: uuid(),
++            name: 'Barista Ceramic Mug',
++            price: 18.0,
++            description: 'Hand-glazed ceramic, 12oz capacity, microwave and dishwasher safe.',
++            imageSrc: 'https://picsum.photos/seed/mug/800/500'
++          },
++          {
++            id: uuid(),
++            name: 'Velocity Running Sneakers',
++            price: 109.0,
++            description: 'Responsive foam, breathable mesh upper, grippy rubber outsole.',
++            imageSrc: 'https://picsum.photos/seed/sneakers/800/500'
++          },
++          {
++            id: uuid(),
++            name: 'Solstice Smartwatch',
++            price: 199.99,
++            description: 'AMOLED display, GPS, 7-day battery, health & sleep tracking.',
++            imageSrc: 'https://picsum.photos/seed/watch/800/500'
++          }
++        ];
++        saveProducts(demo);
++        return demo;
++      }
++
++      function ensureSeeded() {
++        const loaded = loadProducts();
++        if (loaded.length === 0) {
++          products = seedProducts();
++        } else {
++          products = loaded;
++        }
++      }
++
++      function clearGrid() { gridEl.innerHTML = ''; }
++
++      function productCardTemplate(product) {
++        const card = document.createElement('div');
++        card.className = 'product-card';
++        card.dataset.id = product.id;
++        card.innerHTML = `
++          <div class="image-wrap">
++            <img src="${escapeHtml(product.imageSrc)}" alt="${escapeHtml(product.name)}" />
++            <button class="kebab-btn" aria-haspopup="menu" aria-expanded="false" title="More">
++              <span></span><span></span><span></span>
++            </button>
++            <div class="card-menu" role="menu">
++              <button data-action="edit">Edit</button>
++              <button data-action="delete" class="danger">Delete</button>
++            </div>
++          </div>
++          <div class="card-body">
++            <div class="name-row">
++              <h3 class="name">${escapeHtml(product.name)}</h3>
++              <div class="price">${currency(product.price)}</div>
++            </div>
++            <p class="desc">${escapeHtml(product.description)}</p>
++          </div>
++        `;
++        return card;
++      }
++
++      function renderProducts() {
++        clearGrid();
++        const frag = document.createDocumentFragment();
++        products.forEach((p) => frag.appendChild(productCardTemplate(p)));
++        gridEl.appendChild(frag);
++        bindCardMenus();
++      }
++
++      function bindCardMenus() {
++        // Close on outside click
++        document.addEventListener('click', (e) => {
++          document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
++          document.querySelectorAll('.kebab-btn[aria-expanded="true"]').forEach(btn => btn.setAttribute('aria-expanded', 'false'));
++          if (!globalMenu.contains(e.target) && !globalKebab.contains(e.target)) {
++            globalMenu.classList.remove('open');
++            globalKebab.setAttribute('aria-expanded', 'false');
++          }
++        });
++
++        gridEl.querySelectorAll('.product-card').forEach((card) => {
++          const btn = card.querySelector('.kebab-btn');
++          const menu = card.querySelector('.card-menu');
++
++          btn.addEventListener('click', (ev) => {
++            ev.stopPropagation();
++            const isOpen = menu.classList.contains('open');
++            document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
++            document.querySelectorAll('.kebab-btn[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
++            if (!isOpen) {
++              menu.classList.add('open');
++              btn.setAttribute('aria-expanded', 'true');
++            }
++          });
++
++          menu.querySelector('[data-action="edit"]').addEventListener('click', (ev) => {
++            ev.stopPropagation();
++            const id = card.dataset.id;
++            openModal('edit', id);
++            menu.classList.remove('open');
++          });
++
++          menu.querySelector('[data-action="delete"]').addEventListener('click', (ev) => {
++            ev.stopPropagation();
++            const id = card.dataset.id;
++            const product = products.find(p => p.id === id);
++            if (confirm(`Delete "${product.name}"? This cannot be undone.`)) {
++              products = products.filter(p => p.id !== id);
++              saveProducts(products);
++              renderProducts();
++              showToast('Product deleted');
++            }
++          });
++        });
++      }
++
++      function openModal(mode, productId = null) {
++        form.reset();
++        clearErrors();
++        if (mode === 'edit') {
++          const product = products.find(p => p.id === productId);
++          productIdInput.value = product.id;
++          nameInput.value = product.name;
++          priceInput.value = String(product.price);
++          descriptionInput.value = product.description || '';
++          imageUrlInput.value = product.imageSrc || '';
++          imagePreview.src = product.imageSrc || '';
++          modalTitle.textContent = 'Edit product';
++        } else {
++          productIdInput.value = '';
++          imagePreview.src = '';
++          modalTitle.textContent = 'Add product';
++        }
++        modal.classList.add('open');
++        modal.setAttribute('aria-hidden', 'false');
++        document.body.style.overflow = 'hidden';
++        setTimeout(() => nameInput.focus(), 0);
++      }
++
++      function closeModal() {
++        modal.classList.remove('open');
++        modal.setAttribute('aria-hidden', 'true');
++        document.body.style.overflow = '';
++      }
++
++      function clearErrors() {
++        nameError.textContent = '';
++        priceError.textContent = '';
++        imageError.textContent = '';
++      }
++
++      function validateForm() {
++        clearErrors();
++        let ok = true;
++        const name = nameInput.value.trim();
++        const price = parseFloat(String(priceInput.value).replace(/,/g, '.'));
++
++        if (!name) { nameError.textContent = 'Name is required'; ok = false; }
++        if (Number.isNaN(price) || price < 0) { priceError.textContent = 'Enter a valid price'; ok = false; }
++
++        return ok;
++      }
++
++      function getImageFromInputs(existingSrc = '') {
++        return new Promise((resolve) => {
++          const url = imageUrlInput.value.trim();
++          const file = imageFileInput.files && imageFileInput.files[0];
++          if (file) {
++            const reader = new FileReader();
++            reader.onload = () => resolve(reader.result);
++            reader.onerror = () => resolve(existingSrc || url || placeholderImage());
++            reader.readAsDataURL(file);
++          } else if (url) {
++            resolve(url);
++          } else {
++            resolve(existingSrc || placeholderImage());
++          }
++        });
++      }
++
++      function placeholderImage() {
++        return 'https://picsum.photos/seed/placeholder-' + Math.random().toString(36).slice(2) + '/800/500';
++      }
++
++      function escapeHtml(x) {
++        return String(x).replace(/[&<>"](/g, function (c) {
++          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
++        });
++      }
++
++      // Global kebab
++      globalKebab.addEventListener('click', (e) => {
++        e.stopPropagation();
++        const open = globalMenu.classList.toggle('open');
++        globalKebab.setAttribute('aria-expanded', String(open));
++      });
++
++      addProductBtn.addEventListener('click', (e) => {
++        e.stopPropagation();
++        globalMenu.classList.remove('open');
++        globalKebab.setAttribute('aria-expanded', 'false');
++        openModal('add');
++      });
++
++      seedBtn.addEventListener('click', (e) => {
++        e.stopPropagation();
++        if (confirm('Reset demo data? This will overwrite current products.')) {
++          products = seedProducts();
++          renderProducts();
++          showToast('Demo data reset');
++          globalMenu.classList.remove('open');
++          globalKebab.setAttribute('aria-expanded', 'false');
++        }
++      });
++
++      // Modal events
++      modalClose.addEventListener('click', closeModal);
++      cancelBtn.addEventListener('click', closeModal);
++      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
++
++      // Image preview
++      imageUrlInput.addEventListener('input', () => { imagePreview.src = imageUrlInput.value.trim(); });
++      imageFileInput.addEventListener('change', () => {
++        const file = imageFileInput.files && imageFileInput.files[0];
++        if (!file) return;
++        const reader = new FileReader();
++        reader.onload = () => { imagePreview.src = reader.result; };
++        reader.readAsDataURL(file);
++      });
++
++      // Save product
++      form.addEventListener('submit', async (e) => {
++        e.preventDefault();
++        if (!validateForm()) return;
++        const id = productIdInput.value;
++        const name = nameInput.value.trim();
++        const price = parseFloat(String(priceInput.value).replace(/,/g, '.'));
++        const description = descriptionInput.value.trim();
++        const existing = id ? products.find(p => p.id === id) : null;
++        const imageSrc = await getImageFromInputs(existing ? existing.imageSrc : '');
++
++        if (id) {
++          // edit
++          products = products.map(p => p.id === id ? { ...p, name, price, description, imageSrc } : p);
++          showToast('Product updated');
++        } else {
++          // add
++          const newProduct = { id: uuid(), name, price, description, imageSrc };
++          products.unshift(newProduct);
++          showToast('Product added');
++        }
++        saveProducts(products);
++        renderProducts();
++        closeModal();
++      });
++
++      // Initialize
++      ensureSeeded();
++      renderProducts();
++    })();
++  </script>
++</body>
++</html>
++
+EOF
+)
